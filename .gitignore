@@ -1,0 +1,12 @@
+/spotify_venv
+/env
+airflow-webserver.pid
+airflow-scheduler.pid
+airflow.cfg
+airflow.db
+standalone_admin_password.txt
+webserver_config.py
+.cache
+/logs
+/drive_config
+/database
