@@ -5,7 +5,7 @@ import os
 import logging 
 
 ARTIST_DETAILS_CSV_REL_PATH = 'data/api_artist.csv'
-@task(task_id="extract_artist_details_from_csv") 
+@task(task_id="extract_artist_details") 
 def extract_artist(artist_details_csv_rel_path: str = ARTIST_DETAILS_CSV_REL_PATH) -> pd.DataFrame:
 
     airflow_home = os.getenv('AIRFLOW_HOME', '.')
