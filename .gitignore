@@ -9,4 +9,3 @@ webserver_config.py
 .cache
 /logs
 /drive_config
-/database
