@@ -16,6 +16,7 @@ try:
     from tasks.transform_csv_data import transform_spotify_data
     from tasks.merge_data import merge
     from tasks.store import store_merged_data
+    from tasks.load_to_db import load_to_db
 except ImportError as e:
     logging.error(f"Error importing tasks: {e}")
     raise
@@ -25,7 +26,7 @@ except ImportError as e:
     schedule=None,
     start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
     catchup=False,
-    tags=['spotify', 'etl', 'merge', 'gdrive', 'final'],
+    tags=['spotify', 'etl', 'merge', 'gdrive', 'database', 'final']
 )
 def spotify_pipeline_dag():
     extracted_artists_df = extract_artist()
@@ -33,6 +34,7 @@ def spotify_pipeline_dag():
     extracted_spotify_df = extract_spotify()
 
     transformed_artists_df = transform_artist_details(extracted_artists_df)
+
     transformed_grammys_df = transform_grammys_data(extracted_grammys_df)
     transformed_spotify_df = transform_spotify_data(extracted_spotify_df)
 
@@ -45,11 +47,14 @@ def spotify_pipeline_dag():
     gdrive_file_title = "merged_data.csv"
     upload_task = store_merged_data(title=gdrive_file_title, df=final_merged_df)
 
+    db_load_task = load_to_db(df_to_load=final_merged_df, if_exists='replace')
+
     [extracted_artists_df >> transformed_artists_df,
      extracted_grammys_df >> transformed_grammys_df,
      extracted_spotify_df >> transformed_spotify_df]
 
     [transformed_artists_df, transformed_grammys_df, transformed_spotify_df] >> final_merged_df
-    final_merged_df >> upload_task
+
+    final_merged_df >> db_load_task >> upload_task
 
 spotify_pipeline_dag()
